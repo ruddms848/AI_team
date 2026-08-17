@@ -16,6 +16,7 @@
     --muted:#5b6472;
     --link:#3b5bff;
     --bg:#ffffff;
+    
   }
 
   *{box-sizing:border-box;}
@@ -140,6 +141,156 @@
     box-shadow:0 12px 32px rgba(15,23,42,.12);
   }
 
+  /* ---------- stats panel (top of chat) ---------- */
+  .stats-panel{
+    padding:16px 20px;
+    border-bottom:1px solid var(--panel-border);
+    background:#fafbfd;
+  }
+  .stats-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .stats-title{
+    font-size:13px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .stats-refresh{
+    font-size:11.5px;
+    color:var(--muted);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .stats-refresh:hover{ color:var(--blue); }
+  .stats-refresh svg{ width:12px; height:12px; }
+
+  .level-cards{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .level-card{
+    border-radius:10px;
+    padding:10px 8px;
+    text-align:center;
+  }
+  .level-card.high{ background:#eaf7ee; }
+  .level-card.mid{ background:#fff6e0; }
+  .level-card.low{ background:#fdeceb; }
+  .level-card .lv-count{
+    font-size:20px;
+    font-weight:900;
+    line-height:1.1;
+  }
+  .level-card.high .lv-count{ color:#1f9d55; }
+  .level-card.mid .lv-count{ color:#c98a00; }
+  .level-card.low .lv-count{ color:#dd4b3e; }
+  .level-card .lv-label{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  .student-table{
+    max-height:150px;
+    overflow-y:auto;
+    border-radius:10px;
+    border:1px solid var(--panel-border);
+  }
+  .student-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:7px 10px;
+    font-size:12.5px;
+    border-bottom:1px solid #f0f2f6;
+  }
+  .student-row:last-child{ border-bottom:none; }
+  .student-name{
+    font-weight:600;
+    color:var(--ink);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:120px;
+  }
+  .student-rate{
+    font-weight:700;
+    font-size:12px;
+  }
+  .student-rate.high{ color:#1f9d55; }
+  .student-rate.mid{ color:#c98a00; }
+  .student-rate.low{ color:#dd4b3e; }
+  .stats-empty{
+    padding:14px 4px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  /* ---------- name capture overlay ---------- */
+  .name-overlay{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:14px;
+    padding:32px;
+    text-align:center;
+  }
+  .name-overlay .ni-emoji{ font-size:32px; }
+  .name-overlay h3{
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .name-overlay p{
+    margin:0;
+    font-size:13px;
+    color:var(--muted);
+    max-width:280px;
+    line-height:1.6;
+  }
+  .name-form{
+    display:flex;
+    gap:8px;
+    width:100%;
+    max-width:280px;
+  }
+  .name-form input{
+    flex:1;
+    padding:11px 14px;
+    border:1px solid var(--panel-border);
+    border-radius:10px;
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+  }
+  .name-form input:focus{ border-color:var(--blue); }
+  .name-form button{
+    padding:11px 16px;
+    border:none;
+    border-radius:10px;
+    background:var(--blue);
+    color:#fff;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .name-form button:hover{ background:var(--blue-deep); }
+
   /* ---------- right chat panel ---------- */
   .chat-wrap{
     position:relative;
@@ -190,7 +341,7 @@
 
   .chat-body{
     flex:1;
-    min-height:400px;
+    min-height:460px;
     position:relative;
   }
   .agent-frame{
@@ -260,15 +411,55 @@
   <!-- 오른쪽: 챗봇 패널 -->
   <div class="chat-wrap">
     <div class="chat-panel">
+      <div class="stats-panel">
+        <div class="stats-header">
+          <div class="stats-title">📊 학습 현황</div>
+          <div class="stats-refresh" id="statsRefresh">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            새로고침
+          </div>
+        </div>
+
+        <div class="level-cards">
+          <div class="level-card high">
+            <div class="lv-count" id="countHigh">-</div>
+            <div class="lv-label">상 (80%+)</div>
+          </div>
+          <div class="level-card mid">
+            <div class="lv-count" id="countMid">-</div>
+            <div class="lv-label">중 (50~79%)</div>
+          </div>
+          <div class="level-card low">
+            <div class="lv-count" id="countLow">-</div>
+            <div class="lv-label">하 (~49%)</div>
+          </div>
+        </div>
+
+        <div class="student-table" id="studentTable">
+          <div class="stats-empty">학습 데이터를 불러오는 중...</div>
+        </div>
+      </div>
+
       <div class="chat-body">
-        <div class="frame-loading" id="frameLoading">
+        <div class="name-overlay" id="nameOverlay">
+          <div class="ni-emoji">👋</div>
+          <h3>시작하기 전에</h3>
+          <p>부를 이름이나 별명을 알려줘! 학습 현황을 기록하는 데 쓰여 (실명 아니어도 괜찮아)</p>
+          <div class="name-form">
+            <input type="text" id="nameInput" placeholder="이름 또는 별명" maxlength="20">
+            <button id="nameSubmit">시작</button>
+          </div>
+        </div>
+        <div class="frame-loading" id="frameLoading" style="display:none;">
           <div class="spinner"></div>
           <span>에이전트를 불러오는 중...</span>
         </div>
         <iframe
           id="agentFrame"
           class="agent-frame"
-          src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_mllearningcoachparentagent_xDY0PB/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
           title="AI 모델링 코치 에이전트"
           allow="microphone"
         ></iframe>
@@ -280,11 +471,110 @@
 <script>
   const frame = document.getElementById('agentFrame');
   const loading = document.getElementById('frameLoading');
+  const nameOverlay = document.getElementById('nameOverlay');
+  const nameInput = document.getElementById('nameInput');
+  const nameSubmit = document.getElementById('nameSubmit');
+
+  const AGENT_BASE_URL = "https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_mllearningcoachparentagent_xDY0PB/webchat?__version__=2&enableFileAttachment=false&cliAgent=true";
+  const STORAGE_KEY = "quizAgent_studentName";
 
   frame.addEventListener('load', ()=>{
     loading.style.opacity = '0';
     setTimeout(()=> loading.style.display = 'none', 250);
   });
+
+  function startAgent(studentName){
+    nameOverlay.style.display = 'none';
+    loading.style.display = 'flex';
+    const url = AGENT_BASE_URL + "&UserName=" + encodeURIComponent(studentName);
+    frame.src = url;
+  }
+
+  function handleNameSubmit(){
+    const value = nameInput.value.trim();
+    if(!value) { nameInput.focus(); return; }
+    localStorage.setItem(STORAGE_KEY, value);
+    startAgent(value);
+  }
+
+  nameSubmit.addEventListener('click', handleNameSubmit);
+  nameInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') handleNameSubmit();
+  });
+
+  // 페이지 로드 시 저장된 이름이 있으면 바로 시작, 없으면 입력창 표시
+  const savedName = localStorage.getItem(STORAGE_KEY);
+  if(savedName){
+    startAgent(savedName);
+  } else {
+    nameOverlay.style.display = 'flex';
+    nameInput.focus();
+  }
+
+  // ============================================================
+  // ⚠️ 여기를 꼭 수정하세요 — Google Apps Script 웹 앱 URL
+  // ============================================================
+  // 1) Google Sheets에서 "확장 프로그램 → Apps Script"로 코드 작성
+  // 2) 상단 "배포 → 새 배포 → 웹 앱" 선택, 액세스 권한 "모든 사용자"로 배포
+  // 3) 배포 완료 후 나오는 URL을 복사해서 아래 큰따옴표 안에 그대로 붙여넣기
+  //
+  //    실제로 이렇게 생긴 주소예요 (아래는 예시일 뿐, 그대로 쓰면 안 됨):
+  //    "https://script.google.com/macros/s/AKfycbxJ3kL9pQ2rT8vW1xY4zA6bC7dE9fG0hI2jK3lM4nO5pQ6rS7tU8vW9xY0zA1b/exec"
+  //
+  //    ↓↓↓ 아래 줄의 따옴표 안 내용을, 위와 같은 형태의 "본인 URL"로 교체하세요 ↓↓↓
+  const STATS_API_URL = "여기에_Apps_Script_웹앱_URL을_붙여넣으세요";
+  // ============================================================
+
+  const countHigh = document.getElementById('countHigh');
+  const countMid = document.getElementById('countMid');
+  const countLow = document.getElementById('countLow');
+  const studentTable = document.getElementById('studentTable');
+  const statsRefresh = document.getElementById('statsRefresh');
+
+  function levelClass(level){
+    if(level === '상') return 'high';
+    if(level === '중') return 'mid';
+    return 'low';
+  }
+
+  async function loadStats(){
+    if(!STATS_API_URL || STATS_API_URL.indexOf('여기에') === 0){
+      studentTable.innerHTML = '<div class="stats-empty">⚠️ 코드 하단의 STATS_API_URL에 Google Apps Script 웹 앱 주소를 입력해주세요<br>https://script.google.com/macros/s/AKfycbzY52rR6hsZ8PbH4Xh78b-GG-MtPAsoD7E3E23mb9e19eZNq_1sWCCa1w0Bo2OMD9eR/exec</div>';
+      return;
+    }
+    try{
+      studentTable.innerHTML = '<div class="stats-empty">불러오는 중...</div>';
+      const res = await fetch(STATS_API_URL);
+      const data = await res.json();
+
+      countHigh.textContent = data.levelCounts?.['상'] ?? 0;
+      countMid.textContent = data.levelCounts?.['중'] ?? 0;
+      countLow.textContent = data.levelCounts?.['하'] ?? 0;
+
+      if(!data.students || data.students.length === 0){
+        studentTable.innerHTML = '<div class="stats-empty">아직 학습 데이터가 없습니다</div>';
+        return;
+      }
+
+      // 정답률 높은 순으로 정렬
+      const sorted = [...data.students].sort((a,b)=> b.rate - a.rate);
+
+      studentTable.innerHTML = sorted.map(s => `
+        <div class="student-row">
+          <span class="student-name">${s.studentId}</span>
+          <span class="student-rate ${levelClass(s.level)}">${s.rate}% (${s.correct}/${s.total})</span>
+        </div>
+      `).join('');
+    }catch(err){
+      studentTable.innerHTML = '<div class="stats-empty">데이터를 불러오지 못했습니다</div>';
+      console.error(err);
+    }
+  }
+
+  statsRefresh.addEventListener('click', loadStats);
+  loadStats();
+  // 60초마다 자동 새로고침 (선택 사항)
+  setInterval(loadStats, 60000);
 </script>
 
 </body>
