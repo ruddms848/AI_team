@@ -1,1 +1,291 @@
-<!DOCTYPE html><html style="height: 100%;"><body style="height: 100%; margin: 0;"><iframe src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_mllearningcoachparentagent_xDY0PB/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" frameborder="0" style="width: 100%; height: 100%; border: 0;"></iframe></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 모델링 코치 에이전트</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+  :root{
+    --ink:#0f172a;
+    --blue:#2b57ff;
+    --blue-deep:#1435c9;
+    --teal:#3fd0c9;
+    --panel-border:#e6e8ef;
+    --muted:#5b6472;
+    --link:#3b5bff;
+    --bg:#ffffff;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    overflow-x:hidden;
+  }
+
+  .stage{
+    position:relative;
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1fr 420px;
+    gap:40px;
+  }
+
+  /* ---------- decorative background ---------- */
+  .bg-decor{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(0px);
+  }
+  .blob-1{
+    width:760px;height:760px;
+    right:-260px; top:-220px;
+    background:radial-gradient(circle at 30% 30%, #bfe9ff 0%, #8fd8ea 45%, transparent 70%);
+    opacity:.85;
+  }
+  .blob-2{
+    width:640px;height:640px;
+    right:-180px; top:60px;
+    background:radial-gradient(circle at 40% 40%, #5cc7e0 0%, #2f8fd6 55%, transparent 75%);
+    opacity:.55;
+  }
+  .stripes{
+    position:absolute;
+    right:-120px; bottom:-160px;
+    width:900px; height:520px;
+    background:repeating-linear-gradient(
+      100deg,
+      rgba(255,255,255,.9) 0px,
+      rgba(255,255,255,.9) 2px,
+      transparent 2px,
+      transparent 7px
+    ),
+    linear-gradient(120deg, #7fe6d8 0%, #4fc9e8 40%, #4a7bf0 100%);
+    -webkit-mask-image: linear-gradient(to top, black 30%, transparent 92%);
+            mask-image: linear-gradient(to top, black 30%, transparent 92%);
+    transform: rotate(-3deg);
+    border-radius:40px;
+    opacity:.9;
+  }
+  .diag-line{
+    position:absolute;
+    right:120px; top:0; bottom:0;
+    width:2px;
+    background:rgba(15,23,42,.06);
+    transform:skewX(-8deg);
+  }
+
+  /* ---------- left hero content ---------- */
+  .hero{
+    position:relative;
+    z-index:1;
+    padding:64px 24px 64px 88px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:100vh;
+    max-width:900px;
+  }
+
+  .headline{
+    font-size:64px;
+    line-height:1.18;
+    font-weight:900;
+    letter-spacing:-0.01em;
+    margin:0 0 28px 0;
+  }
+  .headline .black{ color:var(--ink); }
+  .headline .accent{
+    display:inline-block;
+    background:linear-gradient(92deg, #2b57ff 0%, #1a3ed6 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .lede{
+    font-size:16.5px;
+    line-height:1.75;
+    color:var(--muted);
+    max-width:620px;
+    margin:0 0 44px 0;
+  }
+  .lede a{
+    color:var(--link);
+    text-decoration:underline;
+    text-underline-offset:2px;
+    font-weight:500;
+  }
+
+  .hero-image{
+    width:100%;
+    max-width:640px;
+  }
+  .hero-image img{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:20px;
+    box-shadow:0 12px 32px rgba(15,23,42,.12);
+  }
+
+  /* ---------- right chat panel ---------- */
+  .chat-wrap{
+    position:relative;
+    z-index:1;
+    padding:24px 24px 24px 0;
+    display:flex;
+    align-items:stretch;
+  }
+  .chat-panel{
+    width:100%;
+    background:#fff;
+    border:1px solid var(--panel-border);
+    border-radius:20px;
+    box-shadow:0 8px 30px rgba(15,23,42,.06);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .chat-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 22px;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .chat-title{
+    font-size:15.5px;
+    font-weight:700;
+    color:var(--ink);
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+  }
+  .chat-title .sub{
+    font-weight:400;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .icon-btn{
+    width:28px; height:28px;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .icon-btn:hover{ background:#f2f4f8; }
+
+  .chat-body{
+    flex:1;
+    min-height:600px;
+    position:relative;
+  }
+  .agent-frame{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+  }
+  .frame-loading{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:10px;
+    color:var(--muted);
+    font-size:13.5px;
+    background:#fff;
+    transition:opacity .25s ease;
+  }
+  .spinner{
+    width:22px;height:22px;
+    border-radius:50%;
+    border:2.5px solid #e6e8ef;
+    border-top-color:var(--blue);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+
+  @media (max-width: 980px){
+    .stage{ grid-template-columns:1fr; }
+    .hero{ padding:48px 24px; min-height:auto; }
+    .headline{ font-size:42px; }
+    .chat-wrap{ padding:0 24px 48px 24px; }
+    .chat-body{ min-height:360px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="bg-decor">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="stripes"></div>
+  </div>
+
+  <!-- 왼쪽: 히어로 -->
+  <div class="hero">
+    <h1 class="headline">
+      <span class="black">저는 여러분의</span><br>
+      <span class="accent">인공지능기초 학습 지원 에이전트입니다.</span>
+    </h1>
+    <p class="lede">
+      이 사이트는 여러분이 인공지능기초 학습을 하는 공간입니다.
+      채팅 창에서 질문을 하거나 아래에서 프롬프트를 선택하세요. <a href="#">자세히 알아보기</a>
+    </p>
+
+    <div class="hero-image">
+      <img src="AI.png" alt="BASIC AI - Learn, Understand, Create">
+    </div>
+  </div>
+
+  <!-- 오른쪽: 챗봇 패널 -->
+  <div class="chat-wrap">
+    <div class="chat-panel">
+      <div class="chat-body">
+        <div class="frame-loading" id="frameLoading">
+          <div class="spinner"></div>
+          <span>에이전트를 불러오는 중...</span>
+        </div>
+        <iframe
+          id="agentFrame"
+          class="agent-frame"
+          src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_mllearningcoachparentagent_xDY0PB/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+          title="AI 모델링 코치 에이전트"
+          allow="microphone"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const frame = document.getElementById('agentFrame');
+  const loading = document.getElementById('frameLoading');
+
+  frame.addEventListener('load', ()=>{
+    loading.style.opacity = '0';
+    setTimeout(()=> loading.style.display = 'none', 250);
+  });
+</script>
+
+</body>
+</html>
