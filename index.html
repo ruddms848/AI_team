@@ -539,7 +539,7 @@
 
   async function loadStats(){
     if(!STATS_API_URL || STATS_API_URL.indexOf('여기에') === 0){
-      studentTable.innerHTML = '<div class="stats-empty">⚠️ 코드 하단의 STATS_API_URL에 Google Apps Script 웹 앱 주소를 입력해주세요<br>https://script.google.com/macros/s/AKfycbzY52rR6hsZ8PbH4Xh78b-GG-MtPAsoD7E3E23mb9e19eZNq_1sWCCa1w0Bo2OMD9eR/exec</div>';
+      studentTable.innerHTML = '<div class="stats-empty"><br></div>';
       return;
     }
     try{
